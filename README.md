@@ -18,6 +18,7 @@
 14. [第十四章：数据库连接配置与 Go Driver](chapters/14-database-config-and-drivers.md)
 15. [第十五章：sql.Open、PingContext 与连接池](chapters/15-sql-open-ping-and-connection-pool.md)
 16. [第十六章：把 Server 切换到 SQL 模式](chapters/16-switch-server-to-sql-mode.md)
+17. [第十七章：数据库迁移、schema.sql 与启动顺序](chapters/17-database-migration-and-schema.md)
 
 后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
 
