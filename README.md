@@ -14,6 +14,9 @@
 10. [第十章：执行记录、日志与可观测性](chapters/10-observability-and-agent-runs.md)
 11. [第十一章：Context、RunID 与 Agent 执行记录器](chapters/11-context-run-id-and-recorder.md)
 12. [第十二章：把 Recorder 接入 Worker 主流程](chapters/12-wire-recorder-into-worker.md)
+13. [第十三章：SQLRecorder 与 agent_runs 写入](chapters/13-sql-recorder-and-agent-runs.md)
+14. [第十四章：数据库连接配置与 Go Driver](chapters/14-database-config-and-drivers.md)
+15. [第十五章：sql.Open、PingContext 与连接池](chapters/15-sql-open-ping-and-connection-pool.md)
 
 后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
 
