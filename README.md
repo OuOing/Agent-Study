@@ -2,6 +2,7 @@
 
 ## 课程目录
 
+0. [术语速查：Agent 开发核心概念](chapters/00-glossary.md)
 1. [第一章：用 Go 构建 Agent 后端](chapters/01-go-backend-and-agent.md)
 2. [第二章：Go 并发、Context 与 Agent 长任务](chapters/02-go-concurrency-and-agent-jobs.md)
 3. [第三章：从 HTTP 接口到后台 Worker](chapters/03-http-to-worker.md)
@@ -19,11 +20,8 @@
 15. [第十五章：sql.Open、PingContext 与连接池](chapters/15-sql-open-ping-and-connection-pool.md)
 16. [第十六章：把 Server 切换到 SQL 模式](chapters/16-switch-server-to-sql-mode.md)
 17. [第十七章：数据库迁移、schema.sql 与启动顺序](chapters/17-database-migration-and-schema.md)
+18. [第十八章：数据库模式下完整跑通任务链路](chapters/18-run-sql-mode-end-to-end.md)
 
 后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
 
-旧的 `lessons/` 文件保留为概念参考，正式学习以 `chapters/` 下的长章节为主。
-
-术语查阅：[Agent 开发术语表](notes/glossary.md)
-
-学习方式：每一章集中讲解一组相关概念，再通过项目代码逐步实现。稳定知识点同步沉淀到 `chapters/`。
+学习方式：所有复习材料统一放在 `chapters/`。每一章集中讲解一组相关概念，再通过项目代码逐步实现。
