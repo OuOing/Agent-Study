@@ -42,12 +42,30 @@ func main() {
 	}
 
 	service := task.NewService(repo)
+	registry := agent.NewRegistry(agent.SearchNotesTool{})
+	var model agent.Model = agent.DemoModel{}
+	if cfg.Model.Endpoint != "" {
+		httpClient := &http.Client{Timeout: cfg.Agent.Timeout}
+		model = agent.NewHTTPModel(
+			httpClient,
+			cfg.Model.Endpoint,
+			cfg.Model.APIKey,
+			cfg.Model.Name,
+			[]agent.ToolDefinition{agent.SearchNotesDefinition()},
+		)
+		model = agent.NewRetryModel(model, agent.RetryPolicy{
+			MaxAttempts: 3,
+			BaseDelay:   200 * time.Millisecond,
+			MaxDelay:    2 * time.Second,
+		})
+	}
+
 	w := worker.New(16, func(ctx context.Context, job worker.Job) {
-		runCtx := agent.WithRunID(ctx, job.ID)
+		jobCtx, cancel := context.WithTimeout(ctx, cfg.Agent.Timeout)
+		defer cancel()
+		runCtx := agent.WithRunID(jobCtx, job.ID)
 
 		_ = service.UpdateStatus(runCtx, job.ID, "running")
-		model := agent.DemoModel{}
-		registry := agent.NewRegistry(agent.SearchNotesTool{})
 		orchestrator := agent.NewOrchestratorWithRecorder(model, registry, cfg.Agent.MaxSteps, recorder)
 		_, err := orchestrator.Run(runCtx, job.Goal)
 		if err != nil {
