@@ -21,6 +21,7 @@
 16. [第十六章：把 Server 切换到 SQL 模式](chapters/16-switch-server-to-sql-mode.md)
 17. [第十七章：数据库迁移、schema.sql 与启动顺序](chapters/17-database-migration-and-schema.md)
 18. [第十八章：数据库模式下完整跑通任务链路](chapters/18-run-sql-mode-end-to-end.md)
+19. [第十九章：从 DemoModel 切换到 HTTPModel](chapters/19-wire-http-model-into-server.md)
 
 后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
 
