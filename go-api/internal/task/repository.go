@@ -12,6 +12,8 @@ type Repository interface {
 	Create(ctx context.Context, task Task) (Task, error)
 	Get(ctx context.Context, id string) (Task, error)
 	UpdateStatus(ctx context.Context, id, status string) error
+	Complete(ctx context.Context, id string, result TaskResult) error
+	Fail(ctx context.Context, id, errorCode string) error
 }
 
 type MemoryRepository struct {
@@ -48,6 +50,34 @@ func (r *MemoryRepository) UpdateStatus(_ context.Context, id, status string) er
 		return ErrNotFound
 	}
 	t.Status = status
+	r.tasks[id] = t
+	return nil
+}
+
+func (r *MemoryRepository) Complete(_ context.Context, id string, result TaskResult) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	t, ok := r.tasks[id]
+	if !ok {
+		return ErrNotFound
+	}
+	t.Status = "completed"
+	t.Result = &result
+	t.ErrorCode = ""
+	r.tasks[id] = t
+	return nil
+}
+
+func (r *MemoryRepository) Fail(_ context.Context, id, errorCode string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	t, ok := r.tasks[id]
+	if !ok {
+		return ErrNotFound
+	}
+	t.Status = "failed"
+	t.Result = nil
+	t.ErrorCode = errorCode
 	r.tasks[id] = t
 	return nil
 }
