@@ -67,12 +67,14 @@ func main() {
 
 		_ = service.UpdateStatus(runCtx, job.ID, "running")
 		orchestrator := agent.NewOrchestratorWithRecorder(model, registry, cfg.Agent.MaxSteps, recorder)
-		_, err := orchestrator.Run(runCtx, job.Goal)
+		content, err := orchestrator.Run(runCtx, job.Goal)
+		finalizeCtx, finalizeCancel := context.WithTimeout(ctx, 5*time.Second)
+		defer finalizeCancel()
 		if err != nil {
-			_ = service.UpdateStatus(runCtx, job.ID, "failed")
+			_ = service.Fail(finalizeCtx, job.ID, "agent_run_failed")
 			return
 		}
-		_ = service.UpdateStatus(runCtx, job.ID, "completed")
+		_ = service.Complete(finalizeCtx, job.ID, content)
 	})
 	handler := httpapi.NewHandler(service, w)
 	ctx := context.Background()
