@@ -50,7 +50,7 @@ func (h *Handler) tasksEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := h.worker.Submit(r.Context(), worker.Job{ID: created.ID, Goal: created.Goal}); err != nil {
-		_ = h.tasks.UpdateStatus(r.Context(), created.ID, "failed")
+		_ = h.tasks.Fail(r.Context(), created.ID, "queue_unavailable")
 		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "queue_unavailable"})
 		return
 	}
