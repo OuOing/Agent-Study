@@ -1,10 +1,16 @@
 package task
 
 type Task struct {
-	ID     string `json:"id"`
-	UserID string `json:"-"`
-	Goal   string `json:"goal"`
-	Status string `json:"status"`
+	ID        string      `json:"id"`
+	UserID    string      `json:"-"`
+	Goal      string      `json:"goal"`
+	Status    string      `json:"status"`
+	Result    *TaskResult `json:"result,omitempty"`
+	ErrorCode string      `json:"error_code,omitempty"`
+}
+
+type TaskResult struct {
+	Content string `json:"content"`
 }
 
 type CreateInput struct {
