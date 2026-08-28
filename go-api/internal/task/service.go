@@ -39,3 +39,11 @@ func (s *Service) Get(ctx context.Context, id string) (Task, error) {
 func (s *Service) UpdateStatus(ctx context.Context, id, status string) error {
 	return s.repo.UpdateStatus(ctx, id, status)
 }
+
+func (s *Service) Complete(ctx context.Context, id, content string) error {
+	return s.repo.Complete(ctx, id, TaskResult{Content: content})
+}
+
+func (s *Service) Fail(ctx context.Context, id, errorCode string) error {
+	return s.repo.Fail(ctx, id, errorCode)
+}
