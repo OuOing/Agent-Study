@@ -27,7 +27,7 @@ func (s *Service) Create(ctx context.Context, input CreateInput) (Task, error) {
 		ID:     strconv.FormatInt(time.Now().UnixNano(), 10),
 		UserID: "demo-user",
 		Goal:   goal,
-		Status: "created",
+		Status: StatusCreated,
 	}
 	return s.repo.Create(ctx, t)
 }
@@ -36,14 +36,14 @@ func (s *Service) Get(ctx context.Context, id string) (Task, error) {
 	return s.repo.Get(ctx, id)
 }
 
-func (s *Service) UpdateStatus(ctx context.Context, id, status string) error {
-	return s.repo.UpdateStatus(ctx, id, status)
+func (s *Service) Start(ctx context.Context, id string) error {
+	return s.repo.Start(ctx, id)
 }
 
 func (s *Service) Complete(ctx context.Context, id, content string) error {
 	return s.repo.Complete(ctx, id, TaskResult{Content: content})
 }
 
-func (s *Service) Fail(ctx context.Context, id, errorCode string) error {
-	return s.repo.Fail(ctx, id, errorCode)
+func (s *Service) Fail(ctx context.Context, id string, from Status, errorCode string) error {
+	return s.repo.Fail(ctx, id, from, errorCode)
 }
