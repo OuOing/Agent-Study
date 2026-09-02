@@ -52,23 +52,13 @@ func (r *SQLRepository) Get(ctx context.Context, id string) (Task, error) {
 	return t, nil
 }
 
-func (r *SQLRepository) UpdateStatus(ctx context.Context, id, status string) error {
+func (r *SQLRepository) Start(ctx context.Context, id string) error {
 	result, err := r.db.ExecContext(ctx, `
 		UPDATE tasks
-		SET status = $2, updated_at = NOW()
-		WHERE id = $1
-	`, id, status)
-	if err != nil {
-		return err
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rows == 0 {
-		return ErrNotFound
-	}
-	return nil
+		SET status = 'running', updated_at = NOW()
+		WHERE id = $1 AND status = 'created'
+	`, id)
+	return checkTransition(result, err)
 }
 
 func (r *SQLRepository) Complete(ctx context.Context, id string, taskResult TaskResult) error {
@@ -79,21 +69,24 @@ func (r *SQLRepository) Complete(ctx context.Context, id string, taskResult Task
 	result, err := r.db.ExecContext(ctx, `
 		UPDATE tasks
 		SET status = 'completed', result_json = $2, error_code = NULL, updated_at = NOW()
-		WHERE id = $1
+		WHERE id = $1 AND status = 'running'
 	`, id, string(resultJSON))
-	return checkTaskUpdated(result, err)
+	return checkTransition(result, err)
 }
 
-func (r *SQLRepository) Fail(ctx context.Context, id, errorCode string) error {
+func (r *SQLRepository) Fail(ctx context.Context, id string, from Status, errorCode string) error {
+	if from != StatusCreated && from != StatusRunning {
+		return ErrTransitionRejected
+	}
 	result, err := r.db.ExecContext(ctx, `
 		UPDATE tasks
-		SET status = 'failed', result_json = NULL, error_code = $2, updated_at = NOW()
-		WHERE id = $1
-	`, id, errorCode)
-	return checkTaskUpdated(result, err)
+		SET status = 'failed', result_json = NULL, error_code = $3, updated_at = NOW()
+		WHERE id = $1 AND status = $2
+	`, id, from, errorCode)
+	return checkTransition(result, err)
 }
 
-func checkTaskUpdated(result sql.Result, err error) error {
+func checkTransition(result sql.Result, err error) error {
 	if err != nil {
 		return err
 	}
@@ -102,7 +95,7 @@ func checkTaskUpdated(result sql.Result, err error) error {
 		return err
 	}
 	if rows == 0 {
-		return ErrNotFound
+		return ErrTransitionRejected
 	}
 	return nil
 }
