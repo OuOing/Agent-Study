@@ -7,13 +7,14 @@ import (
 )
 
 var ErrNotFound = errors.New("task not found")
+var ErrTransitionRejected = errors.New("task state transition rejected")
 
 type Repository interface {
 	Create(ctx context.Context, task Task) (Task, error)
 	Get(ctx context.Context, id string) (Task, error)
-	UpdateStatus(ctx context.Context, id, status string) error
+	Start(ctx context.Context, id string) error
 	Complete(ctx context.Context, id string, result TaskResult) error
-	Fail(ctx context.Context, id, errorCode string) error
+	Fail(ctx context.Context, id string, from Status, errorCode string) error
 }
 
 type MemoryRepository struct {
@@ -42,14 +43,17 @@ func (r *MemoryRepository) Get(_ context.Context, id string) (Task, error) {
 	return t, nil
 }
 
-func (r *MemoryRepository) UpdateStatus(_ context.Context, id, status string) error {
+func (r *MemoryRepository) Start(_ context.Context, id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	t, ok := r.tasks[id]
 	if !ok {
 		return ErrNotFound
 	}
-	t.Status = status
+	if t.Status != StatusCreated {
+		return ErrTransitionRejected
+	}
+	t.Status = StatusRunning
 	r.tasks[id] = t
 	return nil
 }
@@ -61,21 +65,27 @@ func (r *MemoryRepository) Complete(_ context.Context, id string, result TaskRes
 	if !ok {
 		return ErrNotFound
 	}
-	t.Status = "completed"
+	if t.Status != StatusRunning {
+		return ErrTransitionRejected
+	}
+	t.Status = StatusCompleted
 	t.Result = &result
 	t.ErrorCode = ""
 	r.tasks[id] = t
 	return nil
 }
 
-func (r *MemoryRepository) Fail(_ context.Context, id, errorCode string) error {
+func (r *MemoryRepository) Fail(_ context.Context, id string, from Status, errorCode string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	t, ok := r.tasks[id]
 	if !ok {
 		return ErrNotFound
 	}
-	t.Status = "failed"
+	if t.Status != from || (from != StatusCreated && from != StatusRunning) {
+		return ErrTransitionRejected
+	}
+	t.Status = StatusFailed
 	t.Result = nil
 	t.ErrorCode = errorCode
 	r.tasks[id] = t
