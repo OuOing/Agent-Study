@@ -65,13 +65,16 @@ func main() {
 		defer cancel()
 		runCtx := agent.WithRunID(jobCtx, job.ID)
 
-		_ = service.UpdateStatus(runCtx, job.ID, "running")
+		if err := service.Start(runCtx, job.ID); err != nil {
+			log.Printf("start task %s: %v", job.ID, err)
+			return
+		}
 		orchestrator := agent.NewOrchestratorWithRecorder(model, registry, cfg.Agent.MaxSteps, recorder)
 		content, err := orchestrator.Run(runCtx, job.Goal)
 		finalizeCtx, finalizeCancel := context.WithTimeout(ctx, 5*time.Second)
 		defer finalizeCancel()
 		if err != nil {
-			_ = service.Fail(finalizeCtx, job.ID, "agent_run_failed")
+			_ = service.Fail(finalizeCtx, job.ID, task.StatusRunning, "agent_run_failed")
 			return
 		}
 		_ = service.Complete(finalizeCtx, job.ID, content)
