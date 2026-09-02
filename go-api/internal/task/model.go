@@ -1,10 +1,19 @@
 package task
 
+type Status string
+
+const (
+	StatusCreated   Status = "created"
+	StatusRunning   Status = "running"
+	StatusCompleted Status = "completed"
+	StatusFailed    Status = "failed"
+)
+
 type Task struct {
 	ID        string      `json:"id"`
 	UserID    string      `json:"-"`
 	Goal      string      `json:"goal"`
-	Status    string      `json:"status"`
+	Status    Status      `json:"status"`
 	Result    *TaskResult `json:"result,omitempty"`
 	ErrorCode string      `json:"error_code,omitempty"`
 }
