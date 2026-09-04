@@ -24,6 +24,7 @@
 19. [第十九章：从 DemoModel 切换到 HTTPModel](chapters/19-wire-http-model-into-server.md)
 20. [第二十章：保存 Agent 最终结果与失败原因](chapters/20-persist-task-result-and-error.md)
 21. [第二十一章：任务状态机与并发安全转换](chapters/21-task-state-machine.md)
+22. [第二十二章：幂等键、结果未知与外部副作用](chapters/22-idempotency-and-side-effects.md)
 
 后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
 
