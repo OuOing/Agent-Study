@@ -25,7 +25,32 @@
 20. [第二十章：保存 Agent 最终结果与失败原因](chapters/20-persist-task-result-and-error.md)
 21. [第二十一章：任务状态机与并发安全转换](chapters/21-task-state-machine.md)
 22. [第二十二章：幂等键、结果未知与外部副作用](chapters/22-idempotency-and-side-effects.md)
+23. [第二十三章：持久化 ToolCall 与幂等执行器](chapters/23-durable-tool-calls-and-idempotent-executor.md)
+24. [第二十四章：人工审批、参数冻结与执行时授权](chapters/24-approval-and-authorization.md)
+25. [第二十五章：Saga、逆序补偿与不可逆操作](chapters/25-saga-and-compensation.md)
+26. [第二十六章：结果未知的对账、重试与熔断](chapters/26-reconciliation-retry-and-circuit-breaker.md)
+27. [第二十七章：积压任务调度与执行前再验证](chapters/27-backlog-scheduling-and-revalidation.md)
 
-后续章节会继续覆盖数据库、异步任务、真实模型接入、Tool Calling、RAG、流式输出和生产化。
+第 23～27 章整理了对话中讨论的生产化设计，供复习和后续实现使用。**当前 Go 示例尚未实现** ToolCall 持久化、审批、Saga、对账队列和熔断器；示例代码与 SQL 是设计草案，不应当成已运行的项目功能。
+
+## 第 22～27 章复习导览
+
+```text
+22 幂等与结果未知：同一业务操作如何避免重复副作用
+ ↓
+23 持久化 ToolCall：崩溃后如何找回原操作并安全执行
+ ↓
+24 审批与授权：谁同意了什么，执行时是否仍有权限
+ ↓
+25 Saga 与补偿：多步操作失败后如何保留事实并处理后果
+ ↓
+26 对账与熔断：结果不明或下游故障时如何有界恢复
+ ↓
+27 积压调度：服务恢复后如何排序、限流与重新校验
+```
+
+建议先顺着上述问题读一遍，再做每章末尾的“复习自测”；答案就在题目之后，可先遮住答案独立回答。
+
+后续章节会继续覆盖真实模型供应商适配、RAG、流式输出和上述设计的逐步实现。
 
 学习方式：所有复习材料统一放在 `chapters/`。每一章集中讲解一组相关概念，再通过项目代码逐步实现。
