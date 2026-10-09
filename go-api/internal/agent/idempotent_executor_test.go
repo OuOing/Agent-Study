@@ -37,6 +37,14 @@ func (failingBeginStore) Begin(context.Context, ToolCall) (BeginResult, error) {
 func (failingBeginStore) Succeed(context.Context, string, map[string]any) error { return nil }
 func (failingBeginStore) MarkUnknown(context.Context, string) error             { return nil }
 
+type failingSucceedStore struct {
+	*MemoryExecutionStore
+}
+
+func (failingSucceedStore) Succeed(context.Context, string, map[string]any) error {
+	return errors.New("result storage unavailable")
+}
+
 type cancelingTool struct {
 	cancel context.CancelFunc
 }
@@ -79,6 +87,23 @@ func TestIdempotentExecutorStopsWhenStoreFails(t *testing.T) {
 	}
 	if got := tool.calls.Load(); got != 0 {
 		t.Fatalf("tool executed after storage failure: %d calls", got)
+	}
+}
+
+func TestIdempotentExecutorDoesNotRepeatWhenSavingResultFails(t *testing.T) {
+	tool := &countingTool{}
+	store := failingSucceedStore{MemoryExecutionStore: NewMemoryExecutionStore()}
+	executor := NewIdempotentExecutor(NewRegistry(tool), store)
+	call := ToolCall{OperationID: "op-1", ToolName: tool.Name()}
+
+	if _, err := executor.Execute(context.Background(), call); err == nil {
+		t.Fatal("expected result storage error")
+	}
+	if _, err := executor.Execute(context.Background(), call); !errors.Is(err, ErrOperationInProgress) {
+		t.Fatalf("expected in-progress after uncertain save, got %v", err)
+	}
+	if got := tool.calls.Load(); got != 1 {
+		t.Fatalf("tool executed %d times, want 1", got)
 	}
 }
 
